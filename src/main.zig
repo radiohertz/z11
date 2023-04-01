@@ -8,23 +8,11 @@ const XError = error{XOpenDisplayFailed};
 
 /// Container for the XServer
 const XServer = struct {
-    display: ?*xlib.Display,
+    display: *xlib.Display,
 
     /// Start the connection with the XServer
     pub fn init() XError!XServer {
-        var display = xlib.XOpenDisplay(null);
-        if (display == null) {
-            return XError.XOpenDisplayFailed;
-        }
-
-        return XServer{
-            .display = display,
-        };
-    }
-
-    ///
-    pub fn is_valid(self: @This()) bool {
-        return self.display != null;
+        return XServer{ .display = xlib.XOpenDisplay(null) orelse return XError.XOpenDisplayFailed };
     }
 
     /// Get the XServer vendor
@@ -34,9 +22,7 @@ const XServer = struct {
 
     /// Kill the connection with XServer
     pub fn exit(self: @This()) void {
-        if (self.display != null) {
-            _ = xlib.XCloseDisplay(self.display);
-        }
+        _ = xlib.XCloseDisplay(self.display);
     }
 };
 
